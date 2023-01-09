@@ -23,35 +23,71 @@ public class Challenge {
         addPlace(placesAustralia, new Place("Darwin", 3972));
         addPlace(placesAustralia, new Place("Melbourne", 877));
         addPlace(placesAustralia, new Place("Perth", 3923));
-        addPlace(placesAustralia, new Place("Sydney", 0));
+        addPlace(placesAustralia, new Place("Perth", 3923));
+
+        placesAustralia.addFirst(new Place("Sydney", 0));
+
+        System.out.println(placesAustralia);
 
         //Menu
-        boolean flag = true;
-        while(flag) {
-            printActions();
-            switch (scanner.nextLine()) {
-                case "Forward" :
-                case "F" : forwardPlace(placesAustralia);
-                case "Backward":
-                case "B" : backwardPlace(placesAustralia);
-                case "List of Places":
-                case "L" :printPlaces(placesAustralia);
-                case "Menu":
-                case "M" :printActions();
-                case "Quit":
-                default : flag = false;
+        boolean forward = true;
+        boolean quit = false;
+        var iterator = placesAustralia.listIterator();
+        Scanner scanner = new Scanner(System.in);
+
+        printMenu();
+
+        while(!quit) {
+            if(!iterator.hasPrevious()){
+                System.out.println("User is starting from: " + iterator.next());
+                forward = true;
+            } else if (!iterator.hasNext()) {
+                System.out.println("User reached final place: " + iterator.previous());
+                forward = false;
+            }
+            System.out.println("Choose Action:");
+            String action = scanner.nextLine().toUpperCase().substring(0,1);
+            switch (action) {
+                case "F" -> {
+                    if (!forward) {
+                        forward = true;
+                        if (iterator.hasNext()) {
+                            iterator.next();
+                        }
+                    }
+                    if (iterator.hasNext()) {
+                        System.out.println("User is moving to " + iterator.next());
+                    }
+                }
+                case "B" -> {
+                    if (forward) {
+                        forward = false;
+                        if (iterator.hasPrevious()) {
+                            iterator.previous();
+                        }
+                    }
+                    if (iterator.hasPrevious()) {
+                        System.out.println("User is going back to " + iterator.previous());
+                    }
+                }
+                case "L" -> printPlaces(placesAustralia);
+                case "M" -> printMenu();
+                default -> quit = true;
             }
         }
     }
 
-    private static Scanner scanner = new Scanner(System.in);
-
     private static void addPlace(LinkedList<Place> list, Place place){
 
         //Checking for duplicates
+        if(list.contains(place)){
+            System.out.println(place + " already found on the list");
+            return;
+        }
+
         for(Place p : list){
             if(p.name().equalsIgnoreCase(place.name())){
-                System.out.println(p + " already found on the list");
+                System.out.println(place + " already found on the list");
                 return;
             }
         }
@@ -68,31 +104,12 @@ public class Challenge {
         list.add(place);
     }
 
-    private static void forwardPlace(LinkedList<Place> list){
-        String place = scanner.nextLine();
-
-        var iterator = list.listIterator();
-        while (iterator.equals(place) && iterator.hasNext()){
-            System.out.println(iterator.next());
-        }
-    }
-
-    private static void backwardPlace(LinkedList<Place> list){
-        String place = scanner.nextLine();
-
-        var iterator = list.listIterator();
-        while (iterator.equals(place) && iterator.hasPrevious()){
-            System.out.println(iterator.previous());
-        }
-    }
-
     private static void printPlaces(LinkedList<Place> list){
-        var iterator = list.listIterator();
-        while (iterator.hasNext()){
-            System.out.println(iterator.next());
+        for (Place place : list) {
+            System.out.println(place);
         }
     }
-    private static void printActions(){
+    private static void printMenu(){
         String textBlock = """
                 Available actions:
                 (F)orward
